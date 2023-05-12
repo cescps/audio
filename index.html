@@ -9,129 +9,132 @@
     <link rel="icon" type="image/png" href="img/logo.png"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
   </head>
-  <body>
-    <div class="container">
-      <canvas></canvas>
-    </div>
-    <audio id="audio" src="msc/final.mp3"></audio>
-   <script>
-      const animationCanvas = document.querySelector("#animationCanvas");
-      const audio = document.querySelector("#audio");
-      const videoId = "-SYwOAe6V_4";
+  
+ <body>
+  <div class="container">
+    <canvas id="animationCanvas"></canvas>
+  </div>
+  <audio id="audio" src="msc/final.mp3"></audio>
+  <div id="player"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+  <script>
+    const animationCanvas = document.querySelector("#animationCanvas");
+    const audio = document.querySelector("#audio");
+    const videoId = "-SYwOAe6V_4";
 
-      let opt = {
-        width: animationCanvas.offsetWidth,
-        height: animationCanvas.offsetHeight,
-        midY: animationCanvas.offsetHeight / 2,
-        points: 80,
-        stretch: 10,
-        sinHeight: 0,
-        speed: -0.1,
-        strokeColor: "black",
-        strokeWidth: 1.5,
-        power: false,
-      };
+    let opt = {
+      width: animationCanvas.offsetWidth,
+      height: animationCanvas.offsetHeight,
+      midY: animationCanvas.offsetHeight / 2,
+      points: 80,
+      stretch: 10,
+      sinHeight: 0,
+      speed: -0.1,
+      strokeColor: "black",
+      strokeWidth: 1.5,
+      power: false,
+    };
 
-      animationCanvas.width = opt.width * 2;
-      animationCanvas.height = opt.height * 2;
-      animationCanvas.style.width = opt.width;
-      animationCanvas.style.height = opt.height;
+    animationCanvas.width = opt.width * 2;
+    animationCanvas.height = opt.height * 2;
+    animationCanvas.style.width = opt.width;
+    animationCanvas.style.height = opt.height;
 
-      const ctx = animationCanvas.getContext("2d");
-      ctx.scale(2, 2);
+    const ctx = animationCanvas.getContext("2d");
+    ctx.scale(2, 2);
 
-      ctx.strokeStyle = opt.strokeColor;
-      ctx.lineWidth = opt.strokeWidth;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
+    ctx.strokeStyle = opt.strokeColor;
+    ctx.lineWidth = opt.strokeWidth;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
 
-      let time = 0;
-      const render = () => {
-        window.requestAnimationFrame(render);
-        ctx.clearRect(0, 0, opt.width, opt.height);
-        time += 1;
-        ctx.beginPath();
-        let increment = 0;
+    let time = 0;
+    const render = () => {
+      window.requestAnimationFrame(render);
+      ctx.clearRect(0, 0, opt.width, opt.height);
+      time += 1;
+      ctx.beginPath();
+      let increment = 0;
 
-        for (i = 0; i <= opt.points; i++) {
-          if (i < opt.points / 2) {
-            increment += 0.1;
-          } else {
-            increment += -0.1;
-          }
-
-          const x = (opt.width / opt.points) * i;
-          const y =
-            opt.midY +
-            Math.sin(time * opt.speed + i / opt.stretch) *
-              opt.sinHeight *
-              increment;
-          ctx.lineTo(x, y);
-        }
-
-        ctx.stroke();
-      };
-      render();
-
-      animationCanvas.addEventListener("click", () => {
-        opt.power = !opt.power;
-
-        if (opt.power) {
-          audio.play();
-          playYouTubeVideo();
-          TweenMax.to(opt, 1, {
-            sinHeight: 4,
-            stretch: 5,
-            ease: Power2.easeInOut,
-          });
+      for (let i = 0; i <= opt.points; i++) {
+        if (i < opt.points / 2) {
+          increment += 0.1;
         } else {
-          audio.pause();
-          pauseYouTubeVideo();
-          TweenMax.to(opt, 1, {
-            sinHeight: 0,
-            stretch: 10,
-            ease: Power3.easeOut,
-          });
+          increment += -0.1;
         }
-        console.log(opt.power);
-      });
-     
-      // Function to load YouTube IFrame API asynchronously
-      function loadYouTubeAPI() {
-        const tag = document.createElement("script");
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName("script")[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        const x = (opt.width / opt.points) * i;
+        const y =
+          opt.midY +
+          Math.sin(time * opt.speed + i / opt.stretch) *
+            opt.sinHeight *
+            increment;
+        ctx.lineTo(x, y);
       }
 
-      // YouTube player object
-      let player;
+      ctx.stroke();
+    };
+    render();
 
-      // Function called when YouTube IFrame API is ready
-      function onYouTubeIframeAPIReady() {
-        player = new YT.Player("player", {
-          height: "360",
-          width: "640",
-          videoId: videoId,
-          events: {
-            onReady: onPlayerReady,
-            onStateChange: onPlayerStateChange
-          }
+    animationCanvas.addEventListener("click", () => {
+      opt.power = !opt.power;
+
+      if (opt.power) {
+        audio.play();
+        player.playVideo();
+        TweenMax.to(opt, 1, {
+          sinHeight: 4,
+          stretch: 5,
+          ease: Power2.easeInOut,
+        });
+      } else {
+        audio.pause();
+        player.pauseVideo();
+        TweenMax.to(opt, 1, {
+          sinHeight: 0,
+          stretch: 10,
+          ease: Power3.easeOut,
         });
       }
+      console.log(opt.power);
+    });
 
-      // Function called when the YouTube player is ready
-      function onPlayerReady(event) {
-        // You can perform any additional actions here if needed
-      }
+    // Function to load YouTube IFrame API asynchronously
+    function loadYouTubeAPI() {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
 
-      // Function called when the state of the YouTube player changes
-      function onPlayerStateChange(event) {
-        // You can perform any additional actions here if needed
-      }
+    // YouTube player object
+    let player;
+    
+     // Function called when YouTube IFrame API is ready
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player("player", {
+        height: "360",
+        width: "640",
+        videoId: videoId,
+        events: {
+          onReady: onPlayerReady,
+          onStateChange: onPlayerStateChange,
+        },
+      });
+    }
 
-      // Load the YouTube IFrame API
-      loadYouTubeAPI();
-    </script>
-  </body>
+    // Function called when the YouTube player is ready
+    function onPlayerReady(event) {
+      // You can perform any additional actions here if needed
+    }
+
+    // Function called when the state of the YouTube player changes
+    function onPlayerStateChange(event) {
+      // You can perform any additional actions here if needed
+    }
+
+    // Load the YouTube IFrame API
+    loadYouTubeAPI();
+  </script>
+</body>
 </html>
