@@ -15,12 +15,10 @@
     <canvas id="animationCanvas"></canvas>
   </div>
   <audio id="audio" src="msc/final.mp3"></audio>
-  <div id="player"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
   <script>
     const animationCanvas = document.querySelector("#animationCanvas");
     const audio = document.querySelector("#audio");
-    const videoId = "-SYwOAe6V_4";
+    const videoId = "YOUR_YOUTUBE_VIDEO_ID";
 
     let opt = {
       width: animationCanvas.offsetWidth,
@@ -87,54 +85,53 @@
           stretch: 5,
           ease: Power2.easeInOut,
         });
-      } else {
-        audio.pause();
-        player.pauseVideo();
-        TweenMax.to(opt, 1, {
-          sinHeight: 0,
-          stretch: 10,
-          ease: Power3.easeOut,
+        
+       else {
+          audio.pause();
+          player.pauseVideo();
+          TweenMax.to(opt, 1, {
+            sinHeight: 0,
+            stretch: 10,
+            ease: Power3.easeOut,
+          });
+        }
+        console.log(opt.power);
+      });
+
+      // YouTube player object
+      let player;
+
+      // Function called when YouTube IFrame API is ready
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player("player", {
+          height: "360",
+          width: "640",
+          videoId: videoId,
+          events: {
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+          },
         });
       }
-      console.log(opt.power);
-    });
 
-    // Function to load YouTube IFrame API asynchronously
-    function loadYouTubeAPI() {
-      const tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      const firstScriptTag = document.getElementsByTagName("script")[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    }
+      // Function called when the YouTube player is ready
+      function onPlayerReady(event) {
+        // You can perform any additional actions here if needed
+      }
 
-    // YouTube player object
-    let player;
-    
-     // Function called when YouTube IFrame API is ready
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player("player", {
-        height: "360",
-        width: "640",
-        videoId: videoId,
-        events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange,
-        },
-      });
-    }
+      // Function called when the state of the YouTube player changes
+      function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.PLAYING) {
+          // Handle video playing state
+          audio.play();
+        } else if (event.data === YT.PlayerState.PAUSED) {
+          // Handle video paused state
+          audio.pause();
+        }
+      }
 
-    // Function called when the YouTube player is ready
-    function onPlayerReady(event) {
-      // You can perform any additional actions here if needed
-    }
-
-    // Function called when the state of the YouTube player changes
-    function onPlayerStateChange(event) {
-      // You can perform any additional actions here if needed
-    }
-
-    // Load the YouTube IFrame API
-    loadYouTubeAPI();
-  </script>
+      // Load the YouTube IFrame API
+      onYouTubeIframeAPIReady();
+    </script>
 </body>
 </html>
